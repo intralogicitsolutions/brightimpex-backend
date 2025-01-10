@@ -9,6 +9,9 @@ const smtpProtocol = mailer.createTransport({
     }
 });
 const sendMailToUser = (template, receiver, subject, res, content) => {
+    content['server_url'] = process.env.SERVER_URL;
+    content['base_url'] = process.env.BASE_URL;
+
     res.render(template, { receiver, content }, (err, data) => {
         if (err) {
             logger.error('Error in rendering template.', err);
