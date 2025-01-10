@@ -15,6 +15,7 @@ const catalogueSchema = mongoose.Schema(
         image: {
             type: String
         },
+
         createdAt: {
             type: Date,
             default: Date.now,
@@ -23,6 +24,22 @@ const catalogueSchema = mongoose.Schema(
             type: Date,
             default: Date.now,
         },
+        size_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'size',
+        },
+        series_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'series',
+        },
+        category_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'category',
+        },
+        isDeleted: {
+            type: Boolean,
+            default: false
+        }
     },
     {
         timestamps: true,

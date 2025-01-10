@@ -24,7 +24,31 @@ const getCatalogues = async (req, res) => {
     }
 }
 
+const updateCatalogues = async (req, res) => {
+    try {
+        const response = await catalogueService?.updateCatalogues(req.body, res);
+        logger.info(`${messageConstants.RESPONSE_FROM} update Catalogues API`, JSON.stringify(response));
+        res.send(response);
+    } catch (err) {
+        logger.error(`update Catalogues ${messageConstants.API_FAILED}`, err);
+        res.send(err);
+    }
+}
+
+const deleteCatalogues = async (req, res) => {
+    try {
+        const response = await catalogueService?.deleteCatalogues(req?.params?.id, res);
+        logger.info(`${messageConstants.RESPONSE_FROM} delete Catalogues API`, JSON.stringify(response));
+        res.send(response);
+    } catch (err) {
+        logger.error(`delete Catalogues ${messageConstants.API_FAILED}`, err);
+        res.send(err);
+    }
+}
+
 module.exports = {
     createCatalogue,
-    getCatalogues
+    getCatalogues,
+    updateCatalogues,
+    deleteCatalogues
 }
