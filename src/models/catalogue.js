@@ -6,7 +6,6 @@ const catalogueSchema = mongoose.Schema(
             type: String,
             required: true,
             trim: true,
-            index: { unique: true }
         },
         description: {
             type: String,
@@ -15,14 +14,8 @@ const catalogueSchema = mongoose.Schema(
         image: {
             type: String
         },
-
-        createdAt: {
-            type: Date,
-            default: Date.now,
-        },
-        updatedAt: {
-            type: Date,
-            default: Date.now,
+        catalogue_doc: {
+            type: String
         },
         size_id: {
             type: mongoose.Schema.Types.ObjectId,
@@ -39,6 +32,14 @@ const catalogueSchema = mongoose.Schema(
         isDeleted: {
             type: Boolean,
             default: false
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+        updatedAt: {
+            type: Date,
+            default: Date.now,
         }
     },
     {

@@ -10,7 +10,10 @@ const createCategory = async (body, res) => {
             return responseData.success(res, result, `${messageConstants.CATEGORY_CREATED}`);
         }).catch(err => {
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500)
+            if (err.code === 11000) {
+                return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400)
+            }
+            return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 500)
         })
     })
 }
@@ -18,10 +21,6 @@ const createCategory = async (body, res) => {
 const getCategory = async (res) => {
     return new Promise(async () => {
         await CategorySchema.find({ isDeleted: false })
-            .populate({
-                path: 'size_id',
-                select: 'height width unit'
-            })
             .then((result) => {
                 logger.info(`${messageConstants.CATEGORY_FETCHED}`);
                 return responseData.success(res, result, `${messageConstants.CATEGORY_FETCHED}`);
@@ -31,19 +30,13 @@ const getCategory = async (res) => {
             })
     })
 }
+
 const updateCategory = async (body, res) => {
     return new Promise(async () => {
-        if (!body?.id) {
-            logger.error(`Update category ${messageConstants.API_FAILED}`, "id not provided");
-            return responseData.fail(res, 'Please provide id', 404);
-        }
-        const updateFields = {};
-        if (body.name !== undefined) updateFields.name = body.name;
-        if (body.description !== undefined) updateFields.description = body.description;
-
+        const { _id, ...fields } = body;
         await CategorySchema.findByIdAndUpdate(
-            body.id,
-            { $set: updateFields },
+            _id,
+            { $set: fields },
             { new: true }
         ).then((result) => {
             if (!result) {
@@ -54,18 +47,20 @@ const updateCategory = async (body, res) => {
             return responseData.success(res, null, `${messageConstants.CATEGORY_UPDATED}`);
         }).catch(err => {
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+            if (err.code === 11000) {
+                return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400)
+            }
             return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
         })
     })
 }
+
 const deleteCategory = async (id, res) => {
-    if (!id) {
-        logger.error(`Delete category ${messageConstants.API_FAILED}`, "id not provided");
-        return responseData.fail(res, 'Please provide id', 404);
-    }
-    await CategorySchema.findByIdAndUpdate(id,
+    await CategorySchema.findByIdAndUpdate(
+        id,
         { $set: { isDeleted: true } },
-        { new: true })
+        { new: true }
+    )
         .then((size) => {
             if (!size) {
                 logger.warn(`Category with id ${id} not found`);

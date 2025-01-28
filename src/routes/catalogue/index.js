@@ -3,8 +3,8 @@ const { catalogueValidator } = require('../../middleware');
 const { urlConstants } = require('../../constants');
 
 module.exports = (app) => {
-    app.post(urlConstants.CATALOGUE, catalogueValidator.createCatalogueValidation, catalogueController.createCatalogue);
     app.get(urlConstants.CATALOGUE, catalogueController.getCatalogues);
-    app.post(urlConstants.UPDATE_CATALOUGE, catalogueController.updateCatalogues);
-    app.post(urlConstants.DELETE_CATALOGUE, catalogueController.deleteCatalogues);
+    app.post(urlConstants.CATALOGUE, catalogueValidator.createCatalogueValidation, catalogueController.createCatalogue);
+    app.put(urlConstants.CATALOGUE, catalogueValidator.updateCatalogueValidation, catalogueController.updateCatalogues);
+    app.delete(urlConstants.CATALOGUE, catalogueValidator.deleteCatalogueValidation, catalogueController.deleteCatalogues);
 };

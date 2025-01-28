@@ -38,7 +38,7 @@ const updateSize = async (req, res) => {
 
 const deleteSize = async (req, res) => {
     try {
-        const response = await sizeService?.deleteSize(req?.params?.id, res);
+        const response = await sizeService?.deleteSize(req?.query?._id, res);
         logger.info(`${messageConstants.RESPONSE_FROM} delete size API`, JSON.stringify(response));
         res.send(response);
     } catch (err) {

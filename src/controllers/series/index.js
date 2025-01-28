@@ -37,7 +37,7 @@ const updateSeries = async (req, res) => {
 
 const deleteSeries = async (req, res) => {
     try {
-        const response = await seriesService?.deleteSeries(req?.params?.id, res);
+        const response = await seriesService?.deleteSeries(req?.query?._id, res);
         logger.info(`${messageConstants.RESPONSE_FROM} delete series API`, JSON.stringify(response));
         res.send(response);
     } catch (err) {
