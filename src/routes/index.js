@@ -4,7 +4,10 @@ const api = express.Router();
 const routes = [
     `auth`,
     `product`,
-    `catalogue`
+    `catalogue`,
+    `size`,
+    `series`,
+    `category`
 ];
 
 routes.forEach((route) => require(`./${route}`)(api));

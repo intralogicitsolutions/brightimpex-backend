@@ -24,6 +24,24 @@ const messageConstants = {
     CATALOGUE_FETCHED: 'Catalogue list fetched successfully',
     ACTIVATION_MAIL_SENT: 'Account activation mail sent to your email',
     EMAIL_SENT_FORGOT_PASSWORD: 'Email sent successfully with the password reset link',
+    CATALOGUE_UPDATED: 'Catalogue updated successfully',
+    CATALOGUE_DELETED: 'Catalogue deleted successfully',
+
+    SIZE_CREATED: 'Size created successfully',
+    SIZE_FETCHED: 'Size list fetched successfully',
+    SIZE_UPDATED: 'Size updated successfully',
+    SIZE_DELETED: 'Size deleted successfully',
+
+    SERIES_CREATED: 'Series created successfully',
+    SERIES_FETCHED: 'Series list fetched successfully',
+    SERIES_UPDATED: 'Series updated successfully',
+    SERIES_DELETED: 'Series deleted successfully',
+
+    CATEGORY_CREATED: 'Category created successfully',
+    CATEGORY_FETCHED: 'Category list fetched successfully',
+    CATEGORY_UPDATED: 'Category updated successfully',
+    CATEGORY_DELETED: 'Category deleted successfully',
+
 }
 
 module.exports = messageConstants;
