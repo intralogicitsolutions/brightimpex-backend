@@ -2,6 +2,7 @@ const express = require('express');
 const api = express.Router();
 
 const routes = [
+    `auth`,
     `product`,
     `catalogue`
 ];
