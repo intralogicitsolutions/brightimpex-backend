@@ -37,7 +37,7 @@ const updateCategory = async (req, res) => {
 
 const deleteCategory = async (req, res) => {
     try {
-        const response = await categoryServise?.deleteCategory(req?.params?.id, res);
+        const response = await categoryServise?.deleteCategory(req?.query?._id, res);
         logger.info(`${messageConstants.RESPONSE_FROM} delete category API`, JSON.stringify(response));
         res.send(response);
     } catch (err) {

@@ -4,13 +4,24 @@ const SizeSchema = require("../../models/size");
 
 const createSize = async (body, res) => {
     return new Promise(async () => {
-        const size = new SizeSchema(body);
-        await size.save().then((result) => {
-            logger.info(`${messageConstants.SIZE_CREATED}`);
-            return responseData.success(res, result, `${messageConstants.SIZE_CREATED}`);
+        const { height, width, unit } = body;
+        await SizeSchema.findOne({ height, width, unit, isDeleted: false }).then(async (size) => {
+            if (size) {
+                logger.error(messageConstants.SIZE_EXISTS);
+                return responseData.fail(res, messageConstants.SIZE_EXISTS, 400);
+            } else {
+                const size = new SizeSchema(body);
+                await size.save().then((result) => {
+                    logger.info(`${messageConstants.SIZE_CREATED}`);
+                    return responseData.success(res, result, `${messageConstants.SIZE_CREATED}`);
+                }).catch((err) => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
+            }
         }).catch((err) => {
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500)
+            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
         })
     })
 }
@@ -29,32 +40,35 @@ const getSize = async (res) => {
 
 const updateSize = async (body, res) => {
     return new Promise(async () => {
-
-        if (!body?.id) {
-            logger.error(`Update size ${messageConstants.API_FAILED}`, "id not provided");
-            return responseData.fail(res, 'Please provide id', 404);
-        }
-
-        const updateFields = {};
-        if (body.height !== undefined) updateFields.height = body.height;
-        if (body.width !== undefined) updateFields.width = body.width;
-        if (body.unit !== undefined) updateFields.unit = body.unit;
-
-        await SizeSchema.findByIdAndUpdate(
-            body.id,
-            { $set: updateFields },
-            { new: true }
-        ).then((result) => {
-            console.log(result)
-            if (!result) {
-                logger.warn('Size not found.');
-                return responseData.fail(res, 'Size not found.', 404);
+        const { _id, height, width, unit } = body;
+        await SizeSchema.findOne({
+            height,
+            width,
+            unit,
+            isDeleted: false,
+            _id: { $ne: _id }
+        }).then(async (size) => {
+            if (size) {
+                logger.error(messageConstants.SIZE_EXISTS);
+                return responseData.fail(res, messageConstants.SIZE_EXISTS, 400);
+            } else {
+                await SizeSchema.findByIdAndUpdate(
+                    _id,
+                    { $set: { height, width, unit } },
+                    { new: true }
+                ).then((result) => {
+                    if (!result) {
+                        logger.warn('Size not found.');
+                        return responseData.fail(res, 'Size not found.', 404);
+                    }
+                    logger.info('Size updated successfully.');
+                    return responseData.success(res, null, `${messageConstants.SIZE_UPDATED}`);
+                }).catch(err => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
             }
-
-            logger.info('Size updated successfully.');
-            return responseData.success(res, null, `${messageConstants.SIZE_UPDATED}`);
-        }).catch(err => {
-            console.error(err, ">>> Error updating size.");
+        }).catch((err) => {
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
             return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
         })
@@ -62,13 +76,11 @@ const updateSize = async (body, res) => {
 }
 
 const deleteSize = async (id, res) => {
-    if (!id) {
-        logger.error(`Delete size ${messageConstants.API_FAILED}`, "id not provided");
-        return responseData.fail(res, 'Please provide id', 404);
-    }
-    await SizeSchema.findByIdAndUpdate(id,
+    await SizeSchema.findByIdAndUpdate(
+        id,
         { $set: { isDeleted: true } },
-        { new: true })
+        { new: true }
+    )
         .then((size) => {
             if (!size) {
                 logger.warn(`Size with id ${id} not found`);

@@ -22,6 +22,8 @@ app.use(express.json());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
+app.use('/api', express.static(path.join(__dirname, '../uploads')));
+
 app.use('/api', routes);
 
 const port = process.env.PORT || 3000;

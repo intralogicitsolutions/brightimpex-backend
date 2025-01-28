@@ -37,7 +37,7 @@ const updateCatalogues = async (req, res) => {
 
 const deleteCatalogues = async (req, res) => {
     try {
-        const response = await catalogueService?.deleteCatalogues(req?.params?.id, res);
+        const response = await catalogueService?.deleteCatalogues(req?.query?._id, res);
         logger.info(`${messageConstants.RESPONSE_FROM} delete Catalogues API`, JSON.stringify(response));
         res.send(response);
     } catch (err) {

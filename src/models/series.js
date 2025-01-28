@@ -12,10 +12,10 @@ const seriesSchema = mongoose.Schema(
             type: String,
             trim: true,
         },
-        size_id: {
-            type: mongoose.Schema.Types.ObjectId, // Reference to `size`
-            ref: 'size',
-        },
+        // size_id: {
+        //     type: mongoose.Schema.Types.ObjectId, // Reference to `size`
+        //     ref: 'size',
+        // },
         isDeleted: {
             type: Boolean,
             default: false

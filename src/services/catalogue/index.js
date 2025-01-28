@@ -1,18 +1,27 @@
-const { responseData, messageConstants, mailTemplateConstants, mailSubjectConstants } = require('../../constants');
-const { cryptoGraphy } = require('../../middleware');
-const { logger, mail } = require('../../utils');
+const { responseData, messageConstants } = require('../../constants');
+const { logger } = require('../../utils');
 const CatalogueSchema = require("../../models/catalogue")
 
 const createCatalogue = async (body, res) => {
     return new Promise(async () => {
-        const catalogue = new CatalogueSchema(body);
-
-        await catalogue.save().then((result) => {
-            logger.info(`${messageConstants.CATALOGUE_CREATED}`);
-            return responseData.success(res, result, `${messageConstants.CATALOGUE_CREATED}`);
+        const { name, size_id, series_id, category_id } = body;
+        await CatalogueSchema.findOne({ name, size_id, series_id, category_id, isDeleted: false }).then(async (catalogue) => {
+            if (catalogue) {
+                logger.error(messageConstants.CATALOGUE_EXISTS);
+                return responseData.fail(res, messageConstants.CATALOGUE_EXISTS, 400);
+            } else {
+                const catalogue = new CatalogueSchema(body);
+                await catalogue.save().then((result) => {
+                    logger.info(`${messageConstants.CATALOGUE_CREATED}`);
+                    return responseData.success(res, result, `${messageConstants.CATALOGUE_CREATED}`);
+                }).catch((err) => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
+            }
         }).catch((err) => {
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500)
+            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
         })
     })
 }
@@ -26,10 +35,10 @@ const getCatalogues = async (res) => {
             })
             .populate({
                 path: 'series_id',
-                populate: {
-                    path: 'size_id',
-                    select: 'height width unit '
-                },
+                // populate: {
+                //     path: 'size_id',
+                //     select: 'height width unit '
+                // },
                 select: 'name description size_id'
             })
             .populate({
@@ -59,31 +68,40 @@ const updateCatalogues = async (body, res) => {
         if (body.series_id !== undefined) updateFields.series_id = body.series_id;
         if (body.category_id !== undefined) updateFields.category_id = body.category_id;
 
-        await CatalogueSchema.findByIdAndUpdate(
-            body.id,
-            { $set: updateFields },
-            { new: true }
-        ).then((result) => {
-            if (!result) {
-                logger.warn('Catalogues not found.');
-                return responseData.fail(res, 'catalogues not found.', 404);
+        const { name, size_id, series_id, category_id } = body;
+        await CatalogueSchema.findOne({ name, size_id, series_id, category_id, isDeleted: false }).then(async (catalogue) => {
+            if (catalogue) {
+                logger.error(messageConstants.CATALOGUE_EXISTS);
+                return responseData.fail(res, messageConstants.CATALOGUE_EXISTS, 400);
+            } else {
+                await CatalogueSchema.findByIdAndUpdate(
+                    body.id,
+                    { $set: updateFields },
+                    { new: true }
+                ).then((result) => {
+                    if (!result) {
+                        logger.warn('Catalogues not found.');
+                        return responseData.fail(res, 'catalogues not found.', 404);
+                    }
+                    logger.info('Catalogues updated successfully.');
+                    return responseData.success(res, null, `${messageConstants.CATALOGUE_UPDATED}`);
+                }).catch(err => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
             }
-            logger.info('Catalogues updated successfully.');
-            return responseData.success(res, null, `${messageConstants.CATALOGUE_UPDATED}`);
-        }).catch(err => {
+        }).catch((err) => {
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
             return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
         })
     })
 }
 const deleteCatalogues = async (id, res) => {
-    if (!id) {
-        logger.error(`Delete catalogues ${messageConstants.API_FAILED}`, "id not provided");
-        return responseData.fail(res, 'Please provide id', 404);
-    }
-    await CatalogueSchema.findByIdAndUpdate(id,
+    await CatalogueSchema.findByIdAndUpdate(
+        id,
         { $set: { isDeleted: true } },
-        { new: true })
+        { new: true }
+    )
         .then((size) => {
             if (!size) {
                 logger.warn(`Catalogues with id ${id} not found`);

@@ -5,6 +5,6 @@ const sizeController = require('../../controllers/size');
 module.exports = (app) => {
     app.post(urlConstants.SIZE, sizeValidator.createSizeValidation, sizeController?.createSize);
     app.get(urlConstants.SIZE, sizeController?.getSize);
-    app.post(urlConstants.UPDATE_SIZE, sizeController?.updateSize);
-    app.post(urlConstants.DELETE_SIZE, sizeController?.deleteSize)
+    app.put(urlConstants.SIZE, sizeValidator.updateSizeValidation, sizeController?.updateSize);
+    app.delete(urlConstants.SIZE, sizeValidator.deleteSizeValidation, sizeController?.deleteSize);
 };
