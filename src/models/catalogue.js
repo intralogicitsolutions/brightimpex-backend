@@ -20,14 +20,17 @@ const catalogueSchema = mongoose.Schema(
         size_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'size',
+            required: true,
         },
         series_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'series',
+            required: true,
         },
         category_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'category',
+            required: true,
         },
         isDeleted: {
             type: Boolean,

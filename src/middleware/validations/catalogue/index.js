@@ -4,8 +4,9 @@ const { validateRequest } = require('../validate-request');
 const createCatalogueValidation = (req, res, next) => {
     const schema = Joi.object({
         name: Joi.string().required(),
-        description: Joi.string(),
-        image: Joi.string(),
+        description: Joi.string().allow(null).optional(),
+        image: Joi.string().required(),
+        catalogue_doc: Joi.string().required(),
         size_id: Joi.string().required(),
         series_id: Joi.string().required(),
         category_id: Joi.string().required()
@@ -17,8 +18,9 @@ const updateCatalogueValidation = (req, res, next) => {
     const schema = Joi.object({
         _id: Joi.string().required(),
         name: Joi.string().required(),
-        description: Joi.string(),
-        image: Joi.string(),
+        description: Joi.string().allow(null).optional(),
+        image: Joi.string().required(),
+        catalogue_doc: Joi.string().required(),
         size_id: Joi.string().required(),
         series_id: Joi.string().required(),
         category_id: Joi.string().required()

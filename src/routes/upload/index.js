@@ -2,6 +2,7 @@ const { urlConstants } = require('../../constants');
 const uploadController = require('../../controllers/upload');
 const multer = require('multer');
 const { uploadValidator } = require('../../middleware/validations');
+const { jsonWebToken } = require('../../middleware');
 
 const storage = multer.memoryStorage();
 
@@ -12,6 +13,6 @@ const upload = multer({
 
 module.exports = (app) => {
     app.post(urlConstants.GET_IMAGE, uploadValidator.getImageValidation, uploadController?.getImage);
-    app.post(urlConstants.UPLOAD_IMAGE, upload.single('file'), uploadController?.uploadImage);
-    app.post(urlConstants.UPLOAD_DOCUMENT, upload.single('file'), uploadController?.uploadDocument);
+    app.post(urlConstants.UPLOAD_IMAGE, jsonWebToken.validateToken, upload.single('file'), uploadController?.uploadImage);
+    app.post(urlConstants.UPLOAD_DOCUMENT, jsonWebToken.validateToken, upload.single('file'), uploadController?.uploadDocument);
 };

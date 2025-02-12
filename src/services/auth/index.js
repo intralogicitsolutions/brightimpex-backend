@@ -6,7 +6,7 @@ const { logger, mail } = require('../../utils');
 const signUp = async (body, res) => {
     return new Promise(async () => {
         const adminEmails = process.env.ADMIN_EMAILS;
-        if(!adminEmails?.includes(body?.email)) {
+        if (!adminEmails?.includes(body?.email)) {
             logger.error(messageConstants.PERMISSION_ERROR);
             return responseData.fail(res, messageConstants.PERMISSION_ERROR, 500);
         }
@@ -15,7 +15,7 @@ const signUp = async (body, res) => {
         const userSchema = new UserSchema(body);
         await userSchema.save().then(async (result) => {
             await createJsonWebTokenForUser(result, '5m');
-            const link = `${process.env.BASE_URL}/activate-account/${result._id}/${result.token}`;
+            const link = `${process.env.BASE_URL}/admin/activate-account/${result._id}/${result.token}`;
 
             const mailContent = {
                 firstname: body.firstname,
@@ -65,6 +65,10 @@ const signIn = async (body, res) => {
             email: body.email
         }).then(async (result) => {
             if (result) {
+                if (result?.status == 0) {
+                    return responseData.fail(res, messageConstants.EMAIL_NOT_VERIFIED, 401)
+                };
+
                 const isMatch = await cryptoGraphy.comparePassword(body?.password, result?.password);
                 if (isMatch) {
                     await createJsonWebTokenForUser(result);

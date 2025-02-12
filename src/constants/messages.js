@@ -17,6 +17,7 @@ const messageConstants = {
     PASSWORD_NOT_CHANGED: 'Password change unsuccessful',
     ACTIVATION_MAIL_SENT: 'Account activation mail sent to your email',
     EMAIL_SENT_FORGOT_PASSWORD: 'Email sent successfully with the password reset link',
+    EMAIL_NOT_VERIFIED: 'Email not verified',
 
     CATALOGUE_FETCHED: 'Catalogue list fetched successfully',
     CATALOGUE_CREATED: 'Catalogue created successfully',
