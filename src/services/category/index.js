@@ -6,7 +6,7 @@ const createCategory = async (body, res) => {
     return new Promise(async () => {
         const { name } = body;
         await CategorySchema.findOne({ name, isDeleted: false }).then(async (category) => {
-            console.log({category})
+            console.log({ category })
             if (category) {
                 logger.error(messageConstants.CATEGORY_EXISTS);
                 return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400);
