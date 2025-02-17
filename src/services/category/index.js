@@ -6,7 +6,6 @@ const createCategory = async (body, res) => {
     return new Promise(async () => {
         const { name } = body;
         await CategorySchema.findOne({ name, isDeleted: false }).then(async (category) => {
-            console.log({ category })
             if (category) {
                 logger.error(messageConstants.CATEGORY_EXISTS);
                 return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400);
@@ -16,10 +15,11 @@ const createCategory = async (body, res) => {
                     logger.info(`${messageConstants.CATEGORY_CREATED}`);
                     return responseData.success(res, result, `${messageConstants.CATEGORY_CREATED}`);
                 }).catch(err => {
-                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
                     if (err.code === 11000) {
+                        logger.error(messageConstants.CATEGORY_EXISTS);
                         return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400)
                     }
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
                     return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 500)
                 })
             }

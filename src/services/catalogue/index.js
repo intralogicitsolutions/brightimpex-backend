@@ -1,10 +1,12 @@
 const { responseData, messageConstants } = require('../../constants');
 const { logger } = require('../../utils');
-const CatalogueSchema = require("../../models/catalogue")
+const CatalogueSchema = require("../../models/catalogue");
+const { ObjectId } = require('mongoose').Types;
 
 const createCatalogue = async (body, res) => {
     return new Promise(async () => {
         const { name, size_id, series_id, category_id } = body;
+        console.log({ name, size_id, series_id, category_id });
         await CatalogueSchema.findOne({ name, size_id, series_id, category_id, isDeleted: false }).then(async (catalogue) => {
             if (catalogue) {
                 logger.error(messageConstants.CATALOGUE_EXISTS);
@@ -15,6 +17,10 @@ const createCatalogue = async (body, res) => {
                     logger.info(`${messageConstants.CATALOGUE_CREATED}`);
                     return responseData.success(res, result, `${messageConstants.CATALOGUE_CREATED}`);
                 }).catch((err) => {
+                    if (err.code === 11000) {
+                        logger.error(messageConstants.CATALOGUE_EXISTS);
+                        return responseData.fail(res, messageConstants.CATALOGUE_EXISTS, 400)
+                    }
                     logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
                     return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
                 })
@@ -85,6 +91,10 @@ const updateCatalogues = async (body, res) => {
                     logger.info('Catalogues updated successfully.');
                     return responseData.success(res, null, `${messageConstants.CATALOGUE_UPDATED}`);
                 }).catch(err => {
+                    if (err.code === 11000) {
+                        logger.error(messageConstants.CATALOGUE_EXISTS);
+                        return responseData.fail(res, messageConstants.CATALOGUE_EXISTS, 400)
+                    }
                     logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
                     return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
                 })
