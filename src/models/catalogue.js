@@ -11,23 +11,32 @@ const catalogueSchema = mongoose.Schema(
             type: String,
             trim: true,
         },
-        image: {
+        image_name: {
             type: String
         },
-        catalogue_doc: {
+        image_path: {
+            type: String
+        },
+        catalogue_doc_name: {
+            type: String
+        },
+        catalogue_doc_path: {
             type: String
         },
         size_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'size',
+            required: true,
         },
         series_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'series',
+            required: true,
         },
         category_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'category',
+            required: true,
         },
         isDeleted: {
             type: Boolean,

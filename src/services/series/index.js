@@ -15,6 +15,10 @@ const createSeries = async (body, res) => {
                     logger.info(`${messageConstants.SERIES_CREATED}`);
                     return responseData.success(res, result, `${messageConstants.SERIES_CREATED}`);
                 }).catch(err => {
+                    if (err.code === 11000) {
+                        logger.error(messageConstants.SERIES_EXISTS);
+                        return responseData.fail(res, messageConstants.SERIES_EXISTS, 400)
+                    }
                     logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
                     return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500)
                 })

@@ -1,10 +1,12 @@
 const { responseData, messageConstants } = require('../../constants');
 const { logger } = require('../../utils');
-const CatalogueSchema = require("../../models/catalogue")
+const CatalogueSchema = require("../../models/catalogue");
+const { ObjectId } = require('mongoose').Types;
 
 const createCatalogue = async (body, res) => {
     return new Promise(async () => {
         const { name, size_id, series_id, category_id } = body;
+        console.log({ name, size_id, series_id, category_id });
         await CatalogueSchema.findOne({ name, size_id, series_id, category_id, isDeleted: false }).then(async (catalogue) => {
             if (catalogue) {
                 logger.error(messageConstants.CATALOGUE_EXISTS);
@@ -15,6 +17,10 @@ const createCatalogue = async (body, res) => {
                     logger.info(`${messageConstants.CATALOGUE_CREATED}`);
                     return responseData.success(res, result, `${messageConstants.CATALOGUE_CREATED}`);
                 }).catch((err) => {
+                    if (err.code === 11000) {
+                        logger.error(messageConstants.CATALOGUE_EXISTS);
+                        return responseData.fail(res, messageConstants.CATALOGUE_EXISTS, 400)
+                    }
                     logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
                     return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
                 })
@@ -56,27 +62,26 @@ const getCatalogues = async (res) => {
 
 const updateCatalogues = async (body, res) => {
     return new Promise(async () => {
-        if (!body?.id) {
-            logger.error(`Update catalogues ${messageConstants.API_FAILED}`, "id not provided");
-            return responseData.fail(res, 'Please provide id', 404);
-        }
-        const updateFields = {};
-        if (body.name !== undefined) updateFields.name = body.name;
-        if (body.description !== undefined) updateFields.description = body.description;
-        if (body.image !== undefined) updateFields.image = body.image;
-        if (body.size_id !== undefined) updateFields.size_id = body.size_id;
-        if (body.series_id !== undefined) updateFields.series_id = body.series_id;
-        if (body.category_id !== undefined) updateFields.category_id = body.category_id;
+        const { _id, ...fields } = body;
+        const { name, size_id, series_id, category_id } = fields;
 
-        const { name, size_id, series_id, category_id } = body;
-        await CatalogueSchema.findOne({ name, size_id, series_id, category_id, isDeleted: false }).then(async (catalogue) => {
+        const filters = {
+            name,
+            size_id,
+            series_id,
+            category_id,
+            isDeleted: false,
+            _id: { $ne: _id }
+        };
+
+        await CatalogueSchema.findOne(filters).then(async (catalogue) => {
             if (catalogue) {
                 logger.error(messageConstants.CATALOGUE_EXISTS);
                 return responseData.fail(res, messageConstants.CATALOGUE_EXISTS, 400);
             } else {
                 await CatalogueSchema.findByIdAndUpdate(
-                    body.id,
-                    { $set: updateFields },
+                    _id,
+                    { $set: fields },
                     { new: true }
                 ).then((result) => {
                     if (!result) {
@@ -86,6 +91,10 @@ const updateCatalogues = async (body, res) => {
                     logger.info('Catalogues updated successfully.');
                     return responseData.success(res, null, `${messageConstants.CATALOGUE_UPDATED}`);
                 }).catch(err => {
+                    if (err.code === 11000) {
+                        logger.error(messageConstants.CATALOGUE_EXISTS);
+                        return responseData.fail(res, messageConstants.CATALOGUE_EXISTS, 400)
+                    }
                     logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
                     return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
                 })
@@ -102,12 +111,12 @@ const deleteCatalogues = async (id, res) => {
         { $set: { isDeleted: true } },
         { new: true }
     )
-        .then((size) => {
-            if (!size) {
-                logger.warn(`Catalogues with id ${id} not found`);
-                return responseData.fail(res, `Series with id ${id} not found`, 404);
+        .then((catalogue) => {
+            if (!catalogue) {
+                logger.warn(`Catalogue with id ${id} not found`);
+                return responseData.fail(res, `Catalogue with id ${id} not found`, 404);
             }
-            logger.info(`Catalogues with id ${id} deleted successfully`);
+            logger.info(`Catalogue with id ${id} deleted successfully`);
             return responseData.success(res, null, `${messageConstants.CATALOGUE_DELETED}`);
         }).catch(err => {
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);

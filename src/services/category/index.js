@@ -4,16 +4,28 @@ const CategorySchema = require('../../models/category');
 
 const createCategory = async (body, res) => {
     return new Promise(async () => {
-        const category = new CategorySchema(body);
-        await category?.save().then((result) => {
-            logger.info(`${messageConstants.CATEGORY_CREATED}`);
-            return responseData.success(res, result, `${messageConstants.CATEGORY_CREATED}`);
-        }).catch(err => {
-            logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            if (err.code === 11000) {
-                return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400)
+        const { name } = body;
+        await CategorySchema.findOne({ name, isDeleted: false }).then(async (category) => {
+            if (category) {
+                logger.error(messageConstants.CATEGORY_EXISTS);
+                return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400);
+            } else {
+                const category = new CategorySchema(body);
+                await category?.save().then((result) => {
+                    logger.info(`${messageConstants.CATEGORY_CREATED}`);
+                    return responseData.success(res, result, `${messageConstants.CATEGORY_CREATED}`);
+                }).catch(err => {
+                    if (err.code === 11000) {
+                        logger.error(messageConstants.CATEGORY_EXISTS);
+                        return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400)
+                    }
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 500)
+                })
             }
-            return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 500)
+        }).catch((err) => {
+            logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500)
         })
     })
 }
@@ -34,23 +46,39 @@ const getCategory = async (res) => {
 const updateCategory = async (body, res) => {
     return new Promise(async () => {
         const { _id, ...fields } = body;
-        await CategorySchema.findByIdAndUpdate(
-            _id,
-            { $set: fields },
-            { new: true }
-        ).then((result) => {
-            if (!result) {
-                logger.warn('Category not found.');
-                return responseData.fail(res, 'Category not found.', 404);
+        const { name } = fields;
+        const filters = {
+            name,
+            isDeleted: false,
+            _id: { $ne: _id }
+        };
+        await CategorySchema.findOne(filters).then(async (category) => {
+            if (category) {
+                logger.error(messageConstants.CATEGORY_EXISTS);
+                return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400);
+            } else {
+                await CategorySchema.findByIdAndUpdate(
+                    _id,
+                    { $set: fields },
+                    { new: true }
+                ).then((result) => {
+                    if (!result) {
+                        logger.warn('Category not found.');
+                        return responseData.fail(res, 'Category not found.', 404);
+                    }
+                    logger.info(messageConstants.CATEGORY_UPDATED);
+                    return responseData.success(res, null, `${messageConstants.CATEGORY_UPDATED}`);
+                }).catch(err => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    if (err.code === 11000) {
+                        return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400)
+                    }
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
             }
-            logger.info('Category updated successfully.');
-            return responseData.success(res, null, `${messageConstants.CATEGORY_UPDATED}`);
-        }).catch(err => {
+        }).catch((err) => {
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            if (err.code === 11000) {
-                return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400)
-            }
-            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500)
         })
     })
 }
