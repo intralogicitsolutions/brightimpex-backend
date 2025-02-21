@@ -43,11 +43,19 @@ const messageConstants = {
     CATEGORY_DELETED: 'Category deleted successfully',
     CATEGORY_EXISTS: 'Category Already exists',
 
+    CONTACT_QUERY_CREATED: 'Contact query created successfully',
+    CONTACT_QUERY_FETCHED: 'Contact query fetched successfully',
+    CONTACT_QUERY_UPDATED: 'Contact query updated successfully',
+    CONTACT_QUERY_DELETED: 'Contact query deleted successfully',
+
     FILE_NOT_PROVIDE: 'No file provided to upload',
     FILE_UPLOADED_SUCCESSFULLY: 'File uploaded successfully',
     FILE_SAVE_ERROR: 'File not uploaded',
     FILE_NOT_FOUND: 'File not found',
-    FILE_READ_ERROR: 'Error reading file'
+    FILE_READ_ERROR: 'Error reading file',
+
+    COUNTRY_FETCHED: 'Country list fetched successfully',
+    CITY_FETCHED: 'City list fetched successfully',
 
 }
 

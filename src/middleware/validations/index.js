@@ -4,7 +4,9 @@ const authValidator = require('./auth');
 const sizeValidator = require('./size');
 const seriesValidator = require('./series');
 const categoryValidator = require('./category');
-const uploadValidator = require('./upload')
+const uploadValidator = require('./upload');
+const contactUsValidator = require('./contact-us');
+const commonValidator = require('./common');
 
 module.exports = {
     authValidator,
@@ -13,5 +15,7 @@ module.exports = {
     sizeValidator,
     seriesValidator,
     categoryValidator,
-    uploadValidator
+    uploadValidator,
+    contactUsValidator,
+    commonValidator
 }
