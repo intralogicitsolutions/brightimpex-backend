@@ -1,10 +1,10 @@
 const { logger } = require('../../utils');
 const { messageConstants } = require('../../constants');
-const commonServise = require('../../services/common')
+const commonService = require('../../services/common')
 
 const getCountries = async (req, res) => {
     try {
-        const response = await commonServise?.getCountries(res);
+        const response = await commonService?.getCountries(res);
         logger.info(`${messageConstants.RESPONSE_FROM} get countries API`, JSON.stringify(response));
         res.send(response);
     } catch (err) {
@@ -15,7 +15,7 @@ const getCountries = async (req, res) => {
 
 const getCitiesByCountry = async (req, res) => {
     try {
-        const response = await commonServise?.getCitiesByCountry(req?.query, res);
+        const response = await commonService?.getCitiesByCountry(req, res);
         logger.info(`${messageConstants.RESPONSE_FROM} get cities by country API`, JSON.stringify(response));
         res.send(response);
     } catch (err) {

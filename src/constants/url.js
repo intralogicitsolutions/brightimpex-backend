@@ -33,7 +33,7 @@ const urlConstants = {
 
     // COMMON ROUTES
     GET_COUNTRY_LIST: '/common/get-country-list',
-    GET_CITY_LIST: '/common/get-city-list',
+    GET_CITY_LIST: '/common/get-cities-list/:countryId'
 }
 
 module.exports = urlConstants;
