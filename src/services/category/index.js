@@ -20,7 +20,7 @@ const createCategory = async (body, res) => {
                         return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 400)
                     }
                     logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-                    return responseData.fail(res, messageConstants.CATEGORY_EXISTS, 500)
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500)
                 })
             }
         }).catch((err) => {

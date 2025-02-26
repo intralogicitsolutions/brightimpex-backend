@@ -27,6 +27,13 @@ const urlConstants = {
     UPLOAD_IMAGE: '/upload/uploadImage',
     GET_IMAGE: '/upload/getImage',
     UPLOAD_DOCUMENT: '/upload/uploadDocument',
+
+    // CONTACT US ROUTES
+    CONTACT_US: '/contact-us/query',
+
+    // COMMON ROUTES
+    GET_COUNTRY_LIST: '/common/get-country-list',
+    GET_CITY_LIST: '/common/get-cities-list/:countryId'
 }
 
 module.exports = urlConstants;

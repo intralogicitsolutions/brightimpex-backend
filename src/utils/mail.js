@@ -28,7 +28,7 @@ const sendMailToUser = (template, receiver, subject, res, content) => {
                     smtpProtocol.close();
                     return logger.error('Error in sending email.', err);
                 }
-                logger.info(`Email sent successfully to ${content.firstname} ${content.lastname}`);
+                logger.info(`Email sent successfully to ${content.firstname || 'Bright'} ${content.lastname || 'Impex'}`);
                 smtpProtocol.close();
             });
         }

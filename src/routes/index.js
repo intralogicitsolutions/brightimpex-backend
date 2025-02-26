@@ -8,7 +8,9 @@ const routes = [
     `size`,
     `series`,
     `category`,
-    `upload`
+    `upload`,
+    `contact-us`,
+    `common`
 ];
 
 routes.forEach((route) => require(`./${route}`)(api));
