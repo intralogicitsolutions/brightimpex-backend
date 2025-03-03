@@ -1,6 +1,7 @@
 const { responseData, messageConstants } = require('../../constants');
 const { logger } = require('../../utils');
 const SeriesSchema = require('../../models/series');
+const CatalogueSchema = require('../../models/catalogue');
 
 const createSeries = async (body, res) => {
     return new Promise(async () => {
@@ -88,22 +89,32 @@ const updateSeries = async (body, res) => {
 }
 
 const deleteSeries = async (id, res) => {
-    await SeriesSchema.findByIdAndUpdate(
-        id,
-        { $set: { isDeleted: true } },
-        { new: true }
-    )
-        .then((size) => {
-            if (!size) {
-                logger.warn(`Series with id ${id} not found`);
-                return responseData.fail(res, `Series with id ${id} not found`, 404);
-            }
-            logger.info(`Series with id ${id} deleted successfully`);
-            return responseData.success(res, null, `${messageConstants.SERIES_DELETED}`);
-        }).catch(err => {
-            logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
-        })
+    await CatalogueSchema.findOne({ series_id: id, isDeleted: false }).then(async (catalogue) => {
+        if (catalogue) {
+            logger.warn(`Delete all the products of this series to delete this series`);
+            return responseData.fail(res, `Delete all the products of this series to delete this series`, 400);
+        } else {
+            await SeriesSchema.findByIdAndUpdate(
+                id,
+                { $set: { isDeleted: true } },
+                { new: true }
+            )
+                .then((series) => {
+                    if (!series) {
+                        logger.warn(`Series with id ${id} not found`);
+                        return responseData.fail(res, `Series with id ${id} not found`, 404);
+                    }
+                    logger.info(`Series with id ${id} deleted successfully`);
+                    return responseData.success(res, null, `${messageConstants.SERIES_DELETED}`);
+                }).catch((err) => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
+        }
+    }).catch((err) => {
+        logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+        return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+    })
 };
 
 
