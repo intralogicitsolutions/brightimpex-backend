@@ -1,7 +1,7 @@
 const cryptoGraphy = require('./cryptography/encryption_decryption');
 const jsonWebToken = require('./json-web-token/jwt_token');
 const { authValidator, productValidator, catalogueValidator } = require('./validations');
-const { sizeValidator, seriesValidator, categoryValidator, contactUsValidator } = require('./validations');
+const { sizeValidator, seriesValidator, categoryValidator, contactUsValidator, materialValidator } = require('./validations');
 
 
 module.exports = {
@@ -13,5 +13,6 @@ module.exports = {
     sizeValidator,
     seriesValidator,
     categoryValidator,
-    contactUsValidator
+    contactUsValidator,
+    materialValidator
 }

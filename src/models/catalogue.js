@@ -33,6 +33,11 @@ const catalogueSchema = mongoose.Schema(
             ref: 'series',
             required: true,
         },
+        material_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'material',
+            required: true,
+        },
         category_id: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'category',

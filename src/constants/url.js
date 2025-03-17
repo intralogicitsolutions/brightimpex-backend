@@ -20,6 +20,9 @@ const urlConstants = {
     // SERIES ROUTES
     SERIES: '/series',
 
+    // SERIES ROUTES
+    MATERIAL: '/material',
+
     // CATEGORY ROUTES
     CATEGORY: '/category',
 

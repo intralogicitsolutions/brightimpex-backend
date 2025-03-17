@@ -37,6 +37,12 @@ const messageConstants = {
     SERIES_DELETED: 'Series deleted successfully',
     SERIES_EXISTS: 'Series already exists',
 
+    MATERIAL_CREATED: 'Series created successfully',
+    MATERIAL_FETCHED: 'Series list fetched successfully',
+    MATERIAL_UPDATED: 'Series updated successfully',
+    MATERIAL_DELETED: 'Series deleted successfully',
+    MATERIAL_EXISTS: 'Series already exists',
+
     CATEGORY_CREATED: 'Category created successfully',
     CATEGORY_FETCHED: 'Category list fetched successfully',
     CATEGORY_UPDATED: 'Category updated successfully',
