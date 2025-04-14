@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const seriesSchema = mongoose.Schema(
+const materialSchema = mongoose.Schema(
     {
         name: {
             type: String,
@@ -29,4 +29,4 @@ const seriesSchema = mongoose.Schema(
     }
 );
 
-module.exports = mongoose.model('series', seriesSchema);
+module.exports = mongoose.model('material', materialSchema);

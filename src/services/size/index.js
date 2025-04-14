@@ -1,6 +1,7 @@
 const { responseData, messageConstants } = require('../../constants');
 const { logger } = require('../../utils');
 const SizeSchema = require("../../models/size");
+const CatalogueSchema = require("../../models/catalogue");
 
 const createSize = async (body, res) => {
     return new Promise(async () => {
@@ -80,22 +81,32 @@ const updateSize = async (body, res) => {
 }
 
 const deleteSize = async (id, res) => {
-    await SizeSchema.findByIdAndUpdate(
-        id,
-        { $set: { isDeleted: true } },
-        { new: true }
-    )
-        .then((size) => {
-            if (!size) {
-                logger.warn(`Size with id ${id} not found`);
-                return responseData.fail(res, `Size with id ${id} not found`, 404);
-            }
-            logger.info(`Size with id ${id} deleted successfully`);
-            return responseData.success(res, null, `${messageConstants.SIZE_DELETED}`);
-        }).catch(err => {
-            logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
-        })
+    await CatalogueSchema.findOne({ size_id: id, isDeleted: false }).then(async (catalogue) => {
+        if (catalogue) {
+            logger.warn(`Delete all the products of this size to delete this size`);
+            return responseData.fail(res, `Delete all the products of this size to delete this size`, 400);
+        } else {
+            await SizeSchema.findByIdAndUpdate(
+                id,
+                { $set: { isDeleted: true } },
+                { new: true }
+            )
+                .then((size) => {
+                    if (!size) {
+                        logger.warn(`Size with id ${id} not found`);
+                        return responseData.fail(res, `Size with id ${id} not found`, 404);
+                    }
+                    logger.info(`Size with id ${id} deleted successfully`);
+                    return responseData.success(res, null, `${messageConstants.SIZE_DELETED}`);
+                }).catch((err) => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
+        }
+    }).catch((err) => {
+        logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+        return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+    })
 };
 
 

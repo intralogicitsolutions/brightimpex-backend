@@ -1,6 +1,7 @@
 const { responseData, messageConstants } = require('../../constants');
 const { logger } = require('../../utils');
 const CategorySchema = require('../../models/category');
+const CatalogueSchema = require('../../models/catalogue');
 
 const createCategory = async (body, res) => {
     return new Promise(async () => {
@@ -84,22 +85,32 @@ const updateCategory = async (body, res) => {
 }
 
 const deleteCategory = async (id, res) => {
-    await CategorySchema.findByIdAndUpdate(
-        id,
-        { $set: { isDeleted: true } },
-        { new: true }
-    )
-        .then((size) => {
-            if (!size) {
-                logger.warn(`Category with id ${id} not found`);
-                return responseData.fail(res, `Series with id ${id} not found`, 404);
-            }
-            logger.info(`Category with id ${id} deleted successfully`);
-            return responseData.success(res, null, `${messageConstants.CATEGORY_DELETED}`);
-        }).catch(err => {
-            logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
-        })
+    await CatalogueSchema.findOne({ category_id: id, isDeleted: false }).then(async (catalogue) => {
+        if (catalogue) {
+            logger.warn(`Delete all the products of this category to delete this category`);
+            return responseData.fail(res, `Delete all the products of this category to delete this category`, 400);
+        } else {
+            await CategorySchema.findByIdAndUpdate(
+                id,
+                { $set: { isDeleted: true } },
+                { new: true }
+            )
+                .then((size) => {
+                    if (!size) {
+                        logger.warn(`Category with id ${id} not found`);
+                        return responseData.fail(res, `Series with id ${id} not found`, 404);
+                    }
+                    logger.info(`Category with id ${id} deleted successfully`);
+                    return responseData.success(res, null, `${messageConstants.CATEGORY_DELETED}`);
+                }).catch(err => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
+        }
+    }).catch((err) => {
+        logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+        return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+    })
 };
 
 

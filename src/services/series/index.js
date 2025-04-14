@@ -1,11 +1,12 @@
 const { responseData, messageConstants } = require('../../constants');
 const { logger } = require('../../utils');
 const SeriesSchema = require('../../models/series');
+const CatalogueSchema = require('../../models/catalogue');
 
 const createSeries = async (body, res) => {
     return new Promise(async () => {
-        const { name, size_id } = body;
-        await SeriesSchema.findOne({ name, size_id, isDeleted: false }).then(async (series) => {
+        const { name } = body;
+        await SeriesSchema.findOne({ name, isDeleted: false }).then(async (series) => {
             if (series) {
                 logger.error(messageConstants.SERIES_EXISTS);
                 return responseData.fail(res, messageConstants.SERIES_EXISTS, 400);
@@ -33,10 +34,6 @@ const createSeries = async (body, res) => {
 const getSeries = async (res) => {
     return new Promise(async () => {
         await SeriesSchema.find({ isDeleted: false })
-            // .populate({
-            //     path: 'size_id',
-            //     select: 'height width unit'
-            // })
             .then((result) => {
                 logger.info(`${messageConstants.SERIES_FETCHED}`);
                 return responseData.success(res, result, `${messageConstants.SERIES_FETCHED}`);
@@ -50,14 +47,11 @@ const getSeries = async (res) => {
 const updateSeries = async (body, res) => {
     return new Promise(async () => {
         const { _id, ...fields } = body;
-        const { name, size_id } = fields;
+        const { name } = fields;
         const filters = {
             name,
             isDeleted: false,
             _id: { $ne: _id }
-        };
-        if (size_id) {
-            filters['size_id'] = size_id;
         };
         await SeriesSchema.findOne(filters).then(async (series) => {
             if (series) {
@@ -88,22 +82,32 @@ const updateSeries = async (body, res) => {
 }
 
 const deleteSeries = async (id, res) => {
-    await SeriesSchema.findByIdAndUpdate(
-        id,
-        { $set: { isDeleted: true } },
-        { new: true }
-    )
-        .then((size) => {
-            if (!size) {
-                logger.warn(`Series with id ${id} not found`);
-                return responseData.fail(res, `Series with id ${id} not found`, 404);
-            }
-            logger.info(`Series with id ${id} deleted successfully`);
-            return responseData.success(res, null, `${messageConstants.SERIES_DELETED}`);
-        }).catch(err => {
-            logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
-            return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
-        })
+    await CatalogueSchema.findOne({ series_id: id, isDeleted: false }).then(async (catalogue) => {
+        if (catalogue) {
+            logger.warn(`Delete all the products of this series to delete this series`);
+            return responseData.fail(res, `Delete all the products of this series to delete this series`, 400);
+        } else {
+            await SeriesSchema.findByIdAndUpdate(
+                id,
+                { $set: { isDeleted: true } },
+                { new: true }
+            )
+                .then((series) => {
+                    if (!series) {
+                        logger.warn(`Series with id ${id} not found`);
+                        return responseData.fail(res, `Series with id ${id} not found`, 404);
+                    }
+                    logger.info(`Series with id ${id} deleted successfully`);
+                    return responseData.success(res, null, `${messageConstants.SERIES_DELETED}`);
+                }).catch((err) => {
+                    logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+                    return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+                })
+        }
+    }).catch((err) => {
+        logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
+        return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
+    })
 };
 
 

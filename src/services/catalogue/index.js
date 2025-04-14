@@ -1,13 +1,13 @@
 const { responseData, messageConstants } = require('../../constants');
 const { logger } = require('../../utils');
 const CatalogueSchema = require("../../models/catalogue");
-const { ObjectId } = require('mongoose').Types;
+const path = require('path');
+const fs = require('fs');
 
 const createCatalogue = async (body, res) => {
     return new Promise(async () => {
-        const { name, size_id, series_id, category_id } = body;
-        console.log({ name, size_id, series_id, category_id });
-        await CatalogueSchema.findOne({ name, size_id, series_id, category_id, isDeleted: false }).then(async (catalogue) => {
+        const { name, size_id, series_id, material_id, category_id } = body;
+        await CatalogueSchema.findOne({ name, size_id, series_id, material_id, category_id, isDeleted: false }).then(async (catalogue) => {
             if (catalogue) {
                 logger.error(messageConstants.CATALOGUE_EXISTS);
                 return responseData.fail(res, messageConstants.CATALOGUE_EXISTS, 400);
@@ -41,11 +41,11 @@ const getCatalogues = async (res) => {
             })
             .populate({
                 path: 'series_id',
-                // populate: {
-                //     path: 'size_id',
-                //     select: 'height width unit '
-                // },
-                select: 'name description size_id'
+                select: 'name description'
+            })
+            .populate({
+                path: 'material_id',
+                select: 'name description'
             })
             .populate({
                 path: 'category_id',
@@ -115,10 +115,39 @@ const deleteCatalogues = async (id, res) => {
             if (!catalogue) {
                 logger.warn(`Catalogue with id ${id} not found`);
                 return responseData.fail(res, `Catalogue with id ${id} not found`, 404);
-            }
+            };
+
+            console.log({ catalogue })
+
+            const uploadDir = path.join(__dirname, '../../../uploads');
+            console.log({ uploadDir });
+            console.log(catalogue.catalogue_doc_path)
+            console.log(path.join(uploadDir, catalogue.catalogue_doc_path))
+            const filesToDelete = [
+                path.join(uploadDir, catalogue.catalogue_doc_path),
+                path.join(uploadDir, catalogue.image_path)
+            ];
+
+            console.log({ filesToDelete })
+
+            filesToDelete.forEach(filePath => {
+                if (fs.existsSync(filePath)) {
+                    fs.unlink(filePath, (err) => {
+                        if (err) {
+                            logger.error(`Failed to delete file: ${filePath}`, err);
+                        } else {
+                            logger.info(`Deleted file: ${filePath}`);
+                        }
+                    });
+                } else {
+                    logger.warn(`File not found: ${filePath}`);
+                }
+            });
+
             logger.info(`Catalogue with id ${id} deleted successfully`);
             return responseData.success(res, null, `${messageConstants.CATALOGUE_DELETED}`);
         }).catch(err => {
+            console.error(err)
             logger.error(messageConstants.INTERNAL_SERVER_ERROR, err);
             return responseData.fail(res, messageConstants.INTERNAL_SERVER_ERROR, 500);
         })

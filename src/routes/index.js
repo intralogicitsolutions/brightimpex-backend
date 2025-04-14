@@ -7,6 +7,7 @@ const routes = [
     `catalogue`,
     `size`,
     `series`,
+    `material`,
     `category`,
     `upload`,
     `contact-us`,
