@@ -9,9 +9,9 @@ const createCatalogueValidation = (req, res, next) => {
         image_path: Joi.string().required(),
         catalogue_doc_name: Joi.string().allow(null, '').optional(),
         catalogue_doc_path: Joi.string().required(),
-        size_id: Joi.string().required(),
-        series_id: Joi.string().required(),
-        material_id: Joi.string().required(),
+        size_id: Joi.array().items(Joi.string()).required(),
+        series_id: Joi.array().items(Joi.string()).required(),
+        material_id: Joi.array().items(Joi.string()).required(),
         category_id: Joi.string().required()
     })
     validateRequest(req.body, res, schema, next)
@@ -26,9 +26,9 @@ const updateCatalogueValidation = (req, res, next) => {
         image_path: Joi.string().required(),
         catalogue_doc_name: Joi.string().allow(null, '').optional(),
         catalogue_doc_path: Joi.string().required(),
-        size_id: Joi.string().required(),
-        series_id: Joi.string().required(),
-        material_id: Joi.string().required(),
+        size_id: Joi.array().items(Joi.string()).required(),
+        series_id: Joi.array().items(Joi.string()).required(),
+        material_id: Joi.array().items(Joi.string()).required(),
         category_id: Joi.string().required()
     })
     validateRequest(req.body, res, schema, next)

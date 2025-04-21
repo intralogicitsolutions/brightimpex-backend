@@ -24,17 +24,17 @@ const catalogueSchema = mongoose.Schema(
             type: String
         },
         size_id: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: [mongoose.Schema.Types.ObjectId],
             ref: 'size',
             required: true,
         },
         series_id: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: [mongoose.Schema.Types.ObjectId],
             ref: 'series',
             required: true,
         },
         material_id: {
-            type: mongoose.Schema.Types.ObjectId,
+            type: [mongoose.Schema.Types.ObjectId],
             ref: 'material',
             required: true,
         },
